@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <p class="content"></p>
+    <script>
+      async function loadFile(url) {
+        const response = await fetch(url);
+        return (await response.text()).trim().split("\n");
+      }
+
+      async function generateUsernames(num) {
+        const [nouns, adjectives, censored] = await Promise.all([
+          loadFile("nouns.txt"),
+          loadFile("adjectives.txt"),
+          loadFile("blacklist.txt"),
+        ]);
+
+        const usernames = [];
+        while (usernames.length < num) {
+          const word1 =
+            adjectives[Math.floor(Math.random() * adjectives.length)];
+          const word2 = nouns[Math.floor(Math.random() * nouns.length)];
+
+          // Check if the word is censored
+          if (censored.includes(word2)) {
+            continue;
+          }
+
+          // Capitalize the first letter
+          const capitalizedWord1 =
+            (word1.charAt(0).toUpperCase() + word1.slice(1)).replace(/(\r\n|\n|\r)/gm, "");;
+          const capitalizedWord2 =
+            (word2.charAt(0).toUpperCase() + word2.slice(1)).replace(/(\r\n|\n|\r)/gm, "");;
+
+          // Construct the username
+          const username = `${capitalizedWord1}${capitalizedWord2}`;
+          usernames.push(username);
+        }
+        return usernames;
+      }
+
+      async function main() {
+        const num = 50;
+        try {
+          const usernames = await generateUsernames(num);
+          document.querySelector(".content").innerHTML = usernames.join("<br />");
+        } catch (error) {
+          console.error(error);
+          document.querySelector(".content").textContent =
+            "Failed to generate usernames.";
+        }
+      }
+
+      main();
+    </script>
+  </body>
+</html>
