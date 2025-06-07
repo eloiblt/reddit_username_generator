@@ -1,6 +1,7 @@
 FROM nginx:alpine
 
-COPY ./test.html /usr/share/nginx/html
+COPY ./*.txt /usr/share/nginx/html
+COPY index.html /usr/share/nginx/html
 
 EXPOSE 80
 
