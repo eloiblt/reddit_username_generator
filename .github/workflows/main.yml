@@ -1,0 +1,49 @@
+name: CI - CD
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions: write-all
+    outputs:
+      image_tag: ${{ steps.version.outputs.TAG }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login https://ghcr.io -u eloiblt --password-stdin
+
+      - name: Extract version
+        id: version
+        run: echo "TAG=${GITHUB_REF##*/}" >> "$GITHUB_OUTPUT"
+
+      - name: Build the stack
+        run: docker build -t ghcr.io/eloiblt/rug:${{ steps.version.outputs.TAG }} .
+
+      - name: Push the stack
+        run: docker push ghcr.io/eloiblt/rug:${{ steps.version.outputs.TAG }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: docker login, pull, and up
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VPS_IP }}
+          username: ${{ secrets.VPS_USERNAME }}
+          port: ${{ secrets.VPS_PORT }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login https://ghcr.io -u eloiblt --password-stdin
+            cd ~/my-server/rug
+            echo "IMAGE_TAG=${{ needs.build-and-push.outputs.image_tag }}" > .env
+            docker compose pull
+            docker compose up -d
