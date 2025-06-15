@@ -39,8 +39,7 @@ jobs:
       - name: docker login, pull, and up
         uses: appleboy/ssh-action@master
         with:
-          # host: ${{ secrets.VPS_IP }}
-          host: test
+          host: ${{ secrets.VPS_IP }}
           username: ${{ secrets.VPS_USERNAME }}
           port: ${{ secrets.VPS_PORT }}
           key: ${{ secrets.VPS_SSH_KEY }}
