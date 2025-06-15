@@ -24,7 +24,7 @@ jobs:
         run: echo "TAG=${GITHUB_REF##*/}" >> "$GITHUB_OUTPUT"
 
       - name: Build the stack
-        run: docker builds -t ghcr.io/eloiblt/reddit-username-generator:${{ steps.version.outputs.TAG }} .
+        run: docker build -t ghcr.io/eloiblt/reddit-username-generator:${{ steps.version.outputs.TAG }} .
 
       - name: Push the stack
         run: docker push ghcr.io/eloiblt/reddit-username-generator:${{ steps.version.outputs.TAG }}
