@@ -60,7 +60,7 @@ jobs:
       - name: Send Telegram notification
         run: |
           TEXT=$(cat <<EOF
-          *✅ Reddit Username Generator déployé avec succès ✅*
+          *❌ Erreur lors du déploiement de Reddit Username Generator ❌*
 
           *Workflow*: [${{ github.workflow }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
           *Repository*: \`${{ github.repository }}\`
